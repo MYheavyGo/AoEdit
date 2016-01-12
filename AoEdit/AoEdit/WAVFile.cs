@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AoEdit
 {
-    class File
+    class WAVFile
     {
         public string Path { get; set; }
         
@@ -34,7 +34,7 @@ namespace AoEdit
                     fileStream.Close();
                 }
 
-                Console.WriteLine("Réussi");
+                // Console.WriteLine("Réussi");
                 return buffer;
             }
         }

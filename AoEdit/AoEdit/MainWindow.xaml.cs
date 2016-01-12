@@ -20,14 +20,22 @@ namespace AoEdit
     /// </summary>
     public partial class MainWindow : Window
     {
-        File fileWAV = new File();
+        WAVFile fileWAV = new WAVFile();
+        WAVRIFF dataWAV;
 
         public MainWindow()
         {
             InitializeComponent();
 
             var buffer = fileWAV.OpenFile("./Ressources/WAV/good_bad_ugly.wav");
-            txtBoxLog.Text = Encoding.UTF8.GetString(buffer);
+            //dataWAV = new WAV(buffer);
+        }
+
+        private void Window_ContentRendered(object sender, EventArgs e)
+        {
+            txtBoxLog.Text = dataWAV.Log;
         }
     }
+
+    
 }
