@@ -22,23 +22,13 @@ namespace AoEdit
         public uint ChunkSize;
         public string Format;
 
-        public byte[] Buffer { get; set; }
-        public string Log { get; set; }
-        public List<NUMBER> HeaderDATA { get; set; }
-        public int[] SizeDelimiter { get; set; }
-        int sizeHeader = 44;
+        //int sizeHeader = 44;
 
         public WAVRIFF()
         {
             ChunkID = "RIFF";
             ChunkSize = 0;
             Format = "WAVE";
-        }
-
-        public WAVRIFF(byte[] buffer)
-        {
-            Buffer = buffer;
-            SizeDelimiter = new int[] { 4, 4, 4, 4, 4, 2, 2, 4, 4, 2, 2, 4, 4 };
         }
     }
 }

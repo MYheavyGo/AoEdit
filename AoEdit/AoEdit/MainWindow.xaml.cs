@@ -27,13 +27,6 @@ namespace AoEdit
         public MainWindow()
         {
             InitializeComponent();
-
-            //wav.Buffer = wav.File.OpenFile("./Ressources/WAV/good_bad_ugly.wav");
-        }
-
-        private void Window_ContentRendered(object sender, EventArgs e)
-        {
-            //txtBoxLog.Text = wav.Log;
         }
 
         private void Open_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -52,7 +45,7 @@ namespace AoEdit
             if (result == true)
             {
                 Filename = dlg.FileName;
-                txtBoxLog.Text = "Fichier " + Filename + " selectionné";
+                txtBlockLog.Text = "Fichier " + Filename + " selectionné";
                 wav.Buffer = wav.File.OpenFile(Filename);
             }
         }
