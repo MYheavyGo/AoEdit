@@ -21,5 +21,26 @@ namespace AoEdit
     /// </summary>
     class WAVfmt
     {
+        // FMT
+        public string Subchunk1ID { get; set; }
+        public uint Subchunk1Size { get; set; }
+        public ushort AudioFormat { get; set; }
+        public ushort NumChannels { get; set; }
+        public uint SampleRate { get; set; }
+        public uint ByteRate { get; set; }
+        public ushort BlockAlign { get; set; }
+        public ushort BitsPerSample { get; set; }
+
+        public WAVfmt()
+        {
+            Subchunk1ID = "fmt ";
+            Subchunk1Size = 16;
+            AudioFormat = 1;
+            NumChannels = 2;
+            SampleRate = 44100;
+            BitsPerSample = 16;
+            BlockAlign = (ushort)(NumChannels * (BitsPerSample / 8));
+            ByteRate = SampleRate * BlockAlign;
+        }
     }
 }

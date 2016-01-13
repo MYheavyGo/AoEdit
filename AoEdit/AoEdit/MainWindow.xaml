@@ -6,13 +6,23 @@
         xmlns:local="clr-namespace:AoEdit"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525" ContentRendered="Window_ContentRendered">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Open" CanExecute="Open_CanExecute" Executed="Open_Executed"></CommandBinding>
+    </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="15*"/>
-            <RowDefinition/>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="276*"/>
+            <RowDefinition Height="20*"/>
         </Grid.RowDefinitions>
-        <TextBox x:Name="txtBoxLog" TextWrapping="Wrap" Text=""/>
-        <StatusBar Grid.Row="1"/>
+        <TextBox x:Name="txtBoxLog" TextWrapping="Wrap" Text="" Grid.RowSpan="2"/>
+        <StatusBar Grid.Row="2"/>
+        <Menu x:Name="menu" IsMainMenu="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="ApplicationCommands.Open"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Help"></MenuItem>
+        </Menu>
 
     </Grid>
 </Window>

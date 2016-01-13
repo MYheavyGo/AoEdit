@@ -18,23 +18,9 @@ namespace AoEdit
         /// </summary>
            
         // Header of WAV
-        public byte[] ChunkID;
+        public string ChunkID;
         public uint ChunkSize;
-        public byte[] Format;
-
-        // FMT
-        public byte[] Subchunk1ID { get; set; }
-        public uint Subchunk1Size { get; set; }
-        public ushort AudioFormat { get; set; }
-        public ushort NumChannels { get; set; }
-        public uint SampleRate { get; set; }
-        public uint ByteRate { get; set; }
-        public ushort BlockAlign { get; set; }
-        public ushort BitsPerSample { get; set; }
-
-        // DATA
-        public byte[] Subchunk2ID { get; set; }
-        public ushort Subchunk2Size { get; set; }
+        public string Format;
 
         public byte[] Buffer { get; set; }
         public string Log { get; set; }
@@ -42,7 +28,13 @@ namespace AoEdit
         public int[] SizeDelimiter { get; set; }
         int sizeHeader = 44;
 
-        public WAVRIFF() { }
+        public WAVRIFF()
+        {
+            ChunkID = "RIFF";
+            ChunkSize = 0;
+            Format = "WAVE";
+        }
+
         public WAVRIFF(byte[] buffer)
         {
             Buffer = buffer;

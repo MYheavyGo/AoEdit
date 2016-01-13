@@ -16,5 +16,16 @@ namespace AoEdit
     /// </summary>
     class WAVdata
     {
+        // DATA
+        public string Subchunk2ID { get; set; }
+        public uint Subchunk2Size { get; set; }
+        public ushort[] Data { get; set; }
+
+        public WAVdata()
+        {
+            Subchunk2ID = "data";
+            Subchunk2Size = 0;
+            Data = new ushort[0];
+        }
     }
 }

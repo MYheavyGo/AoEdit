@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,22 +21,40 @@ namespace AoEdit
     /// </summary>
     public partial class MainWindow : Window
     {
-        WAVFile fileWAV = new WAVFile();
-        WAVRIFF dataWAV;
+        WAV wav = new WAV();
+        string Filename { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
 
-            var buffer = fileWAV.OpenFile("./Ressources/WAV/good_bad_ugly.wav");
-            //dataWAV = new WAV(buffer);
+            //wav.Buffer = wav.File.OpenFile("./Ressources/WAV/good_bad_ugly.wav");
         }
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
-            txtBoxLog.Text = dataWAV.Log;
+            //txtBoxLog.Text = wav.Log;
+        }
+
+        private void Open_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void Open_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.DefaultExt = ".wav";
+            dlg.Filter = "WAV Files (*.wav)|*.wav";
+
+            bool? result = dlg.ShowDialog();
+
+            if (result == true)
+            {
+                Filename = dlg.FileName;
+                txtBoxLog.Text = "Fichier " + Filename + " selectionné";
+                wav.Buffer = wav.File.OpenFile(Filename);
+            }
         }
     }
-
-    
 }
