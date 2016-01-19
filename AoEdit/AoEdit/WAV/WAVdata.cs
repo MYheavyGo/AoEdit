@@ -18,14 +18,21 @@ namespace AoEdit
     {
         // DATA
         public string Subchunk2ID { get; set; }
-        public uint Subchunk2Size { get; set; }
-        public ushort[] Data { get; set; }
+        public int Subchunk2Size { get; set; }
+        public byte[] Data { get; set; }
 
         public WAVdata()
         {
-            Subchunk2ID = "data";
+            Subchunk2ID = "";
             Subchunk2Size = 0;
-            Data = new ushort[0];
+            Data = new byte[0];
+        }
+
+        public WAVdata(string id, int size, byte[] data)
+        {
+            Subchunk2ID = id;
+            Subchunk2Size = size;
+            Data = data;
         }
     }
 }

@@ -12,9 +12,9 @@ namespace AoEdit
         public string Path { get; set; }
         public string FileName { get; set; }
 
-        public byte[] OpenFile(string path)
+        public Stream OpenFile(string path)
         {
-            return File.ReadAllBytes(path);
+            return new FileStream(path, FileMode.Open, FileAccess.Read);
         }
 
         public void WriteFile(byte[] bytes)

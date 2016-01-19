@@ -56,10 +56,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="NUMBER.cs" />
-    <Compile Include="WAV.cs" />
-    <Compile Include="WAVdata.cs" />
-    <Compile Include="WAVfmt.cs" />
-    <Compile Include="WAVRIFF.cs" />
+    <Compile Include="Utils\Constants.cs" />
+    <Compile Include="WAV\WAV.cs" />
+    <Compile Include="WAV\WAVdata.cs" />
+    <Compile Include="WAV\WaveGenerator.cs" />
+    <Compile Include="WAV\WAVfmt.cs" />
+    <Compile Include="WAV\WAVRIFF.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -68,7 +70,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WAVFile.cs" />
+    <Compile Include="WAV\WAVFile.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

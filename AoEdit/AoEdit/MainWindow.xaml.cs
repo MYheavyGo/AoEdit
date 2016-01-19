@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,12 +22,17 @@ namespace AoEdit
     /// </summary>
     public partial class MainWindow : Window
     {
-        WAV wav = new WAV();
+        WAVFile wavFile;
+        List<WAV> wavs;
+        WAV wav;
         string Filename { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
+
+            wavFile = new WAVFile();
+            wavs = new List<WAV>();
         }
 
         private void Open_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -46,8 +52,21 @@ namespace AoEdit
             {
                 Filename = dlg.FileName;
                 txtBlockLog.Text = "Fichier " + Filename + " selectionné";
-                wav.Buffer = wav.File.OpenFile(Filename);
+                wavs.Add(new WAV(wavFile.OpenFile(Filename)));
+                wav = wavs.Last();
+                updateInfos(wav);
             }
+        }
+
+        private void updateInfos(WAV wav)
+        {
+            lblFormat.Content = wav.Header.Format;
+            lblSize.Content = wav.Header.ChunkSize + "";
+            lblAudioFormat.Content = wav.Fmt.getNameAudioFormat();
+            lblChannels.Content = wav.Fmt.NumChannels;
+            lblBitrate.Content = wav.Fmt.ByteRate;
+            lblSamplingRate.Content = wav.Fmt.SampleRate;
+            txtBlockLog.Text = wav.Log;
         }
     }
 }

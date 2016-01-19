@@ -18,17 +18,15 @@ namespace AoEdit
         /// </summary>
            
         // Header of WAV
-        public string ChunkID;
-        public uint ChunkSize;
-        public string Format;
-
-        //int sizeHeader = 44;
+        public string ChunkID { get; set; }
+        public int ChunkSize { get; set; }
+        public string Format { get; set; }
 
         public WAVRIFF()
         {
-            ChunkID = "RIFF";
+            ChunkID = "";
             ChunkSize = 0;
-            Format = "WAVE";
+            Format = "";
         }
     }
 }

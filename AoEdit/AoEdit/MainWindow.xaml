@@ -9,10 +9,21 @@
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Open" CanExecute="Open_CanExecute" Executed="Open_Executed"></CommandBinding>
     </Window.CommandBindings>
-    <DockPanel>
+    <DockPanel LastChildFill="True">
         <Menu x:Name="menu" IsMainMenu="True" DockPanel.Dock="Top">
             <MenuItem Header="_File">
                 <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="ApplicationCommands.Open"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Templates">
+                <MenuItem Header="SIN">
+                    <MenuItem.ToolTip>
+                        <ToolTip>
+                            <StackPanel>
+                                <TextBlock>Crée un fichier WAV avec le signal du SINUS</TextBlock>
+                            </StackPanel>
+                        </ToolTip>
+                    </MenuItem.ToolTip>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="_Help"></MenuItem>
         </Menu>
@@ -24,7 +35,41 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="4*"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Content="Général" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold"></Label>
+                <Label Content="Audio" Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold"></Label>
+                <Label Content="Format" Grid.Row="1" Grid.Column="0"></Label>
+                <Label Content="Taille du fichier" Grid.Row="2" Grid.Column="0"></Label>
+                <Label Content="Format" Grid.Row="4" Grid.Column="0"></Label>
+                <Label Content="Canaux" Grid.Row="5" Grid.Column="0"></Label>
+                <Label Content="Débit (bitrate)" Grid.Row="6" Grid.Column="0"></Label>
+                <Label Content="Taux d'échantillonnage" Grid.Row="7" Grid.Column="0"></Label>
+                <Label x:Name="lblFormat" Content="" Grid.Row="1" Grid.Column="1"></Label>
+                <Label x:Name="lblSize" Content="" Grid.Row="2" Grid.Column="1"></Label>
+                <Label x:Name="lblAudioFormat" Content="" Grid.Row="4" Grid.Column="1"></Label>
+                <Label x:Name="lblChannels" Content="" Grid.Row="5" Grid.Column="1"></Label>
+                <Label x:Name="lblBitrate" Content="" Grid.Row="6" Grid.Column="1"></Label>
+                <Label x:Name="lblSamplingRate" Content="" Grid.Row="7" Grid.Column="1"></Label>
+            </Grid>
+            <TextBlock x:Name="txtBlockFileViewer" Grid.Row="1"></TextBlock>
         </Grid>
     </DockPanel>
 </Window>
