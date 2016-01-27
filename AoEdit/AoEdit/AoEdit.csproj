@@ -55,13 +55,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="NUMBER.cs" />
     <Compile Include="Utils\Constants.cs" />
-    <Compile Include="WAV\WAV.cs" />
-    <Compile Include="WAV\WAVdata.cs" />
-    <Compile Include="WAV\WaveGenerator.cs" />
-    <Compile Include="WAV\WAVfmt.cs" />
-    <Compile Include="WAV\WAVRIFF.cs" />
+    <Compile Include="WAV.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -70,7 +65,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WAV\WAVFile.cs" />
+    <Compile Include="Audio\WAVFile.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -102,11 +97,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Ressources\WAV\good_bad_ugly.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
