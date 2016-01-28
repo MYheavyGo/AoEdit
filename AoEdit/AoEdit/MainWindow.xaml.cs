@@ -1,18 +1,11 @@
-﻿using Microsoft.Win32;
+﻿using AoEdit.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace AoEdit
@@ -52,10 +45,39 @@ namespace AoEdit
             {
                 Filename = dlg.FileName;
                 txtBlockLog.Text = "Fichier " + Filename + " selectionné";
-                wavs.Add(new WAV(wavFile.OpenFile(Filename)));
-                wav = wavs.Last();
+                wav = new WAV(Filename, wavFile.OpenFile(Filename));
+                if(wav.Passed == true)
+                {
+                    if (wavs.Count == 0)
+                    {
+                        wavs.Add(wav);
+                    }
+
+                    wav = verifyWAVS(wav);
+                }
+                else
+                {
+                    if (wavs.Count > 0)
+                    {
+                        wav = wavs.Last();
+                    }
+                }
                 updateInfos(wav.Header);
             }
+        }
+
+        private WAV verifyWAVS(WAV w)
+        {
+            foreach (WAV item in wavs)
+            {
+                if(w.Name == item.Name)
+                {
+                    return item;
+                }
+            }
+
+            wavs.Add(w);
+            return w;
         }
 
         private void ResetContent()
@@ -78,10 +100,10 @@ namespace AoEdit
 
             lblFileName.Content = Filename.Substring(Filename.LastIndexOf('\\') + 1);
             lblFormat.Content = new string(header.wavefmt, 0, 4);
-            lblSize.Content = header.totalLenght;
+            lblSize.Content = Constants.SizeSuffix(header.totalLenght);
             lblAudioFormat.Content = header.pcm;
             lblChannels.Content = header.channels;
-            lblBitrate.Content = header.bytesPerSecond;
+            lblBitrate.Content = Constants.SizeSuffix(header.bytesPerSecond) + "/S";
             lblSamplingRate.Content = header.bitsPerSample;
             txtBlockLog.Text = wav.Log;
 
@@ -90,46 +112,64 @@ namespace AoEdit
 
         private void DrawSignal(byte[] buffer)
         {
-            /*var frames = samples / 2;
-            var max = 0.0f;
-            var min = 0.0f;
-            var batch = (int)Math.Max(40, samples / 4000);
-            var mid = Signal.ActualHeight / 2;
-            var yScale = 100;
-            var xPos = 0;
+            canvas.Children.Clear();
 
-            var bytes = wav.Header.bitsPerSample + 7 >> 3;
+            float[] output = buffer.Select(b => (float)b).ToArray();
 
-            var frameLenght = wav.Header.bytesByCapture;
-            var bufferLenght = wav.Header.channels * bytes * 1024;
+            var blockWidth = 3;
+            var posX = 0;
+            var numSubsets = (int)canvas.ActualWidth / blockWidth;
+            var subsetLenght = output.Length / numSubsets;
 
-            var samples = new float[frameLenght];
-            var buf = new byte[bufferLenght];
+            float[] subsets = new float[numSubsets];
 
-            for (int i = 0; i < batch; i++)
+            var s = 0;
+            for (int i = 0; i < subsets.Length; i++)
             {
-                for(int n = batch * (i + 1); n > 0; n--)
+                double sum = 0;
+                for(int k = 0; k < subsetLenght; k++)
                 {
-                    max = Math.Max(max, Math.Abs(buffer[n]));
-                    if (wav.Header.channels > 1)
-                    {
-                        min = Math.Min(min, Math.Abs(buffer[n]));
-                    }
+                    sum += Math.Abs(output[s++]);
                 }
 
-                Line line = new Line();
-                line.X1 = xPos;
-                line.X2 = xPos;
-                line.Y1 = mid + (max * yScale);
-                line.Y2 = mid - (max * yScale);
-                line.StrokeThickness = 1;
-                line.Stroke = new SolidColorBrush(Colors.IndianRed);
-                Signal.Children.Add(line);
-                max = 0;
-                xPos++;
+                subsets[i] = (float)(sum / subsetLenght);
             }
 
-            Signal.Width = xPos;*/ 
+            float normal = 0;
+            foreach(float sample in subsets)
+            {
+                if (sample > normal)
+                {
+                    normal = sample;
+                }
+            }
+
+            normal = 32768.0f / normal;
+            for (int i = 0; i < subsets.Length; i++)
+            {
+                subsets[i] *= normal;
+                subsets[i] = (float)((subsets[i] / 32768.0f) * (canvas.ActualHeight / 2));
+            }
+
+            for (int i = 0; i < subsets.Length; i++)
+            {
+                var sample = subsets[i];
+
+                float posY = (float)((canvas.ActualHeight / 2) - sample);
+                float negY = (float)((canvas.ActualHeight / 2) + sample);
+
+                posX = i * blockWidth;
+
+                Line l = new Line();
+                l.X1 = posX;
+                l.X2 = posX;
+                l.Y1 = posY;
+                l.Y2 = negY;
+                l.StrokeThickness = 3;
+                l.Stroke = new SolidColorBrush(Colors.DarkOrange);
+
+                canvas.Children.Add(l);
+            }
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
@@ -158,11 +198,8 @@ namespace AoEdit
             header.bytesByCapture = (short) (header.channels * (header.bitsPerSample / 8));
             header.bytesPerSecond = header.frequency * header.bytesByCapture;
 
-            var startTime = DateTime.Now;
-            var endTime = 0;
-
             //Remplie les données audio du fichier
-            uint time = 20;
+            uint time = 1;
             uint numSamples = (uint) (header.frequency * header.channels) * time;
             short[] buffer = new short[numSamples];
             int amplitude = 32760;
@@ -184,9 +221,12 @@ namespace AoEdit
             header.totalLenght = 4 + (8 + header.format) + (8 + header.bytesInData);
 
             wavFile.WriteFile(buffer, header);
+        }
 
-            endTime = DateTime.Now - startTime;
-            Console.WriteLine(endTime);
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (wav != null)
+                DrawSignal(wav.Buffer);
         }
     }
 }

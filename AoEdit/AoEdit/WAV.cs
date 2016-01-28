@@ -29,6 +29,8 @@ namespace AoEdit
 
         public Stream StreamWAV { get; set; }
 
+        public string Name { get; set; }
+
         public byte[] Buffer { get; set; }
 
         private int sizeHeader = 44;
@@ -45,8 +47,9 @@ namespace AoEdit
         {
         }
 
-        public WAV(Stream wavFile)
+        public WAV(string name, Stream wavFile)
         {
+            Name = name;
             StreamWAV = wavFile;
             Header = new wavfile();
             Log = ReadBuffer();
