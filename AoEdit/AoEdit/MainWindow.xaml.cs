@@ -59,7 +59,7 @@ namespace AoEdit
                 {
                     if (wavs.Count > 0)
                     {
-                        wav = wavs.Last();
+                        wav = wavs.Last();  
                     }
                 }
                 updateInfos(wav.Header);
