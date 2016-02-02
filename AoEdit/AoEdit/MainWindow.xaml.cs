@@ -19,6 +19,7 @@ namespace AoEdit
         List<WAV> wavs;
         WAV wav;
         string Filename { get; set; }
+        Polyline pl;
 
         public MainWindow()
         {
@@ -26,6 +27,7 @@ namespace AoEdit
 
             wavFile = new WAVFile();
             wavs = new List<WAV>();
+            pl = new Polyline();
         }
 
         private void Open_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -103,7 +105,7 @@ namespace AoEdit
             lblSize.Content = Constants.SizeSuffix(header.totalLenght);
             lblAudioFormat.Content = header.pcm;
             lblChannels.Content = header.channels;
-            lblBitrate.Content = Constants.SizeSuffix(header.bytesPerSecond) + "/S";
+            lblBitrate.Content = Constants.SizeSuffix(header.bytesPerSecond) + "/s";
             lblSamplingRate.Content = header.bitsPerSample;
             txtBlockLog.Text = wav.Log;
 
@@ -113,13 +115,15 @@ namespace AoEdit
         private void DrawSignal(byte[] buffer)
         {
             canvas.Children.Clear();
+            pl.Points.Clear();
 
-            float[] output = buffer.Select(b => (float)b).ToArray();
+            if (wav.output == null)
+                wav.output = buffer.Select(b => (float)b).ToArray();
 
-            var blockWidth = 3;
+            var blockWidth = 6;
             var posX = 0;
             var numSubsets = (int)canvas.ActualWidth / blockWidth;
-            var subsetLenght = output.Length / numSubsets;
+            var subsetLenght = wav.output.Length / numSubsets;
 
             float[] subsets = new float[numSubsets];
 
@@ -129,7 +133,7 @@ namespace AoEdit
                 double sum = 0;
                 for(int k = 0; k < subsetLenght; k++)
                 {
-                    sum += Math.Abs(output[s++]);
+                    sum += Math.Abs(wav.output[s++]);
                 }
 
                 subsets[i] = (float)(sum / subsetLenght);
@@ -144,11 +148,12 @@ namespace AoEdit
                 }
             }
 
-            normal = 32768.0f / normal;
+            float maxValue = short.MaxValue;
+            normal = maxValue / normal;
             for (int i = 0; i < subsets.Length; i++)
             {
                 subsets[i] *= normal;
-                subsets[i] = (float)((subsets[i] / 32768.0f) * (canvas.ActualHeight / 2));
+                subsets[i] = (float)((subsets[i] / maxValue) * (canvas.ActualHeight / 2));
             }
 
             for (int i = 0; i < subsets.Length; i++)
@@ -160,16 +165,25 @@ namespace AoEdit
 
                 posX = i * blockWidth;
 
+                /*Point p = new Point();
+                p.X = posX;
+                p.Y = posY;
+                pl.Points.Add(p);*/
+
                 Line l = new Line();
                 l.X1 = posX;
                 l.X2 = posX;
                 l.Y1 = posY;
                 l.Y2 = negY;
-                l.StrokeThickness = 3;
+                l.StrokeThickness = 1.5;
                 l.Stroke = new SolidColorBrush(Colors.DarkOrange);
 
                 canvas.Children.Add(l);
             }
+
+            /*pl.StrokeThickness = 3;
+            pl.Stroke = new SolidColorBrush(Colors.DarkOrange);
+            canvas.Children.Add(pl);*/
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
@@ -202,7 +216,7 @@ namespace AoEdit
             uint time = 1;
             uint numSamples = (uint) (header.frequency * header.channels) * time;
             short[] buffer = new short[numSamples];
-            int amplitude = 32760;
+            int amplitude = short.MaxValue;
             double freq = 17000.0f;
 
             double t = (Math.PI * 2 * freq) / (header.frequency * header.channels);
@@ -212,15 +226,17 @@ namespace AoEdit
             {
                 for (int channel = 0; channel < header.channels; channel++)
                 {
-                    //buffer[i + channel] = Convert.ToInt16(amplitude * Math.Sin(t * i));
+                    buffer[i + channel] = Convert.ToInt16(amplitude * Math.Sin(t * i));
                     //buffer[i + channel] = Convert.ToInt16(amplitude * Math.Sign(Math.Sin(t * i)));
-                    buffer[i + channel] = Convert.ToInt16(rnd.Next(-amplitude, amplitude));
+                    //buffer[i + channel] = Convert.ToInt16(rnd.Next(-amplitude, amplitude));
                 }
             }
             header.bytesInData = buffer.Length * (header.bitsPerSample / 8);
             header.totalLenght = 4 + (8 + header.format) + (8 + header.bytesInData);
 
             wavFile.WriteFile(buffer, header);
+
+            MessageBox.Show("Réussite de l'écriture");
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)

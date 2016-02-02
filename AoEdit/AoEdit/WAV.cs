@@ -32,6 +32,7 @@ namespace AoEdit
         public string Name { get; set; }
 
         public byte[] Buffer { get; set; }
+        public float[] output { get; set; }
 
         private int sizeHeader = 44;
         public int SizeHeader

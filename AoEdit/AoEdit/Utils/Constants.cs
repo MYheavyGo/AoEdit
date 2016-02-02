@@ -23,7 +23,7 @@ namespace AoEdit.Utils
             WAVE_FORMAT_DEVELOPMENT= 0xFFFF
         }
 
-        static readonly string[] SizeSuffixes = { "bytes", "KB", "MB", "GB", "TB", "PB" };
+        static readonly string[] SizeSuffixes = { "bytes", "Kb", "Mb", "Gb", "Tb", "Pb" };
         public static string SizeSuffix(Int64 value)
         {
             if(value< 0) { return "-" + SizeSuffixes[-value]; }

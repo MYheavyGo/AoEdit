@@ -15,7 +15,7 @@
                 <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="ApplicationCommands.Open"></MenuItem>
             </MenuItem>
             <MenuItem Header="Templates">
-                <MenuItem Header="SIN" Click="MenuItem_Click">
+                <MenuItem Header="Create a WAV - ultrasound" Click="MenuItem_Click">
                     <MenuItem.ToolTip>
                         <ToolTip>
                             <StackPanel>
