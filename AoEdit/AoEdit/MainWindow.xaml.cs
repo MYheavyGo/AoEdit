@@ -4,22 +4,47 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace AoEdit
 {
+    public enum RenderWAV
+    {
+        Line,
+        Fill,
+        Largers,
+        Bars
+    }
+
+    public enum FormWAV
+    {
+        Sin,
+        Square,
+        Triangle,
+        Sawtooth,
+        WhiteNoise
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        //Constantes
+        Color renderColor = Colors.DarkOrange;
+
         WAVFile wavFile;
         List<WAV> wavs;
         WAV wav;
         string Filename { get; set; }
         Polyline pl;
+        int posX;
+        int blockWidth;
+        RenderWAV render;
+        FormWAV form;
 
         public MainWindow()
         {
@@ -28,6 +53,11 @@ namespace AoEdit
             wavFile = new WAVFile();
             wavs = new List<WAV>();
             pl = new Polyline();
+
+            posX = 1;
+            blockWidth = 6;
+            render = RenderWAV.Bars;
+            form = FormWAV.Sawtooth;
         }
 
         private void Open_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -68,6 +98,7 @@ namespace AoEdit
             }
         }
 
+        //Vérifie si le WAV a déjà été chargé
         private WAV verifyWAVS(WAV w)
         {
             foreach (WAV item in wavs)
@@ -82,6 +113,7 @@ namespace AoEdit
             return w;
         }
 
+        //Reset le contenu des labels
         private void ResetContent()
         {
             lblFormat.Content = "";
@@ -92,6 +124,7 @@ namespace AoEdit
             lblSamplingRate.Content = "";
         }
 
+        //Met à jour les infos du WAV
         private void updateInfos(wavfile header)
         {
             if (!wav.Passed)
@@ -103,8 +136,11 @@ namespace AoEdit
             lblFileName.Content = Filename.Substring(Filename.LastIndexOf('\\') + 1);
             lblFormat.Content = new string(header.wavefmt, 0, 4);
             lblSize.Content = Constants.SizeSuffix(header.totalLenght);
-            lblAudioFormat.Content = header.pcm;
-            lblChannels.Content = header.channels;
+            lblAudioFormat.Content = "PCM";
+            if (header.channels > 1)
+                lblChannels.Content = "Stéréo";
+            else
+                lblChannels.Content = "Mono";
             lblBitrate.Content = Constants.SizeSuffix(header.bytesPerSecond) + "/s";
             lblSamplingRate.Content = header.bitsPerSample;
             txtBlockLog.Text = wav.Log;
@@ -112,21 +148,93 @@ namespace AoEdit
             DrawSignal(wav.Buffer);
         }
 
-        private void DrawSignal(byte[] buffer)
+        //Vide les lines et la polyline
+        private void ResetSignal()
         {
             canvas.Children.Clear();
-            pl.Points.Clear();
+            //pl.Points.Clear();
+        }
 
-            if (wav.output == null)
-                wav.output = buffer.Select(b => (float)b).ToArray();
+        //Dessine en forme de Box
+        private void DrawBox(float[] subsets)
+        {
+            for (int i = 1; i <= subsets.Length; i++)
+            {
+                var sample = subsets[i - 1];
 
-            var blockWidth = 6;
-            var posX = 0;
+                float posY = (float)((canvas.ActualHeight / 2) - sample);
+                float negY = (float)((canvas.ActualHeight / 2) + sample);
+
+                posX = i * blockWidth;
+                //pl.Points.Add(p);
+
+                Line l = new Line();
+                l.X1 = posX;
+                l.X2 = posX;
+                l.Y1 = posY;
+                l.Y2 = negY;
+                l.StrokeThickness = 1.5;
+                l.Stroke = new SolidColorBrush(renderColor);
+
+                //Ajoute les lignes dans le canvas
+                canvas.Children.Add(l);
+            }
+        }
+
+        private void DrawStraightLine(float[] subsets)
+        {
+            List<Point> pointsTop = new List<Point>();
+
+            for (int i = 1; i <= subsets.Length; i++)
+            {
+                var sample = subsets[i - 1];
+
+                float posY = (float)((canvas.ActualHeight / 2) - sample);
+                float negY = (float)((canvas.ActualHeight / 2) + sample);
+
+                posX = i * blockWidth;
+
+                pointsTop.Add(new Point(posX, posY));
+            }
+
+            if (pointsTop.Count < 1)
+            return;
+
+            Point firstPoint = pointsTop[0];
+            foreach (Point p in pointsTop)
+            {
+                if (p == firstPoint)
+                    continue;
+
+                Line l = new Line();
+                l.X1 = firstPoint.X;
+                l.X2 = p.X;
+                l.Y1 = firstPoint.Y;
+                l.Y2 = p.Y;
+                l.Stroke = new SolidColorBrush(renderColor);
+                canvas.Children.Add(l);
+
+                firstPoint = p;
+            }
+        }
+
+        //Prépare les données et dessine dans le format voulu le WAV
+        private void DrawSignal(byte[] buffer)
+        {
+            ResetSignal();
+
+            //Largeur du bloc
+            blockWidth = 6;
+            //Position de départ
+            posX = 1;
+            //Nombre max de line possible à dessiner sur le canvas
             var numSubsets = (int)canvas.ActualWidth / blockWidth;
+            //La longueur de données à prendre pour chaque bloc
             var subsetLenght = wav.output.Length / numSubsets;
 
             float[] subsets = new float[numSubsets];
 
+            //Moyenne les valeurs pour chaque bloc
             var s = 0;
             for (int i = 0; i < subsets.Length; i++)
             {
@@ -148,45 +256,30 @@ namespace AoEdit
                 }
             }
 
-            float maxValue = short.MaxValue;
+            float maxValue = ushort.MaxValue;
             normal = maxValue / normal;
             for (int i = 0; i < subsets.Length; i++)
             {
                 subsets[i] *= normal;
-                subsets[i] = (float)((subsets[i] / maxValue) * (canvas.ActualHeight / 2));
+                subsets[i] = subsets[i] / maxValue * ((float) canvas.ActualHeight / 2);
             }
 
-            for (int i = 0; i < subsets.Length; i++)
+            switch (render)
             {
-                var sample = subsets[i];
-
-                float posY = (float)((canvas.ActualHeight / 2) - sample);
-                float negY = (float)((canvas.ActualHeight / 2) + sample);
-
-                posX = i * blockWidth;
-
-                /*Point p = new Point();
-                p.X = posX;
-                p.Y = posY;
-                pl.Points.Add(p);*/
-
-                Line l = new Line();
-                l.X1 = posX;
-                l.X2 = posX;
-                l.Y1 = posY;
-                l.Y2 = negY;
-                l.StrokeThickness = 1.5;
-                l.Stroke = new SolidColorBrush(Colors.DarkOrange);
-
-                canvas.Children.Add(l);
+                case RenderWAV.Bars:
+                    DrawBox(subsets);
+                    break;
+                case RenderWAV.Fill:
+                    break;
+                case RenderWAV.Largers:
+                    break;
+                case RenderWAV.Line:
+                    DrawStraightLine(subsets);
+                    break;
             }
-
-            /*pl.StrokeThickness = 3;
-            pl.Stroke = new SolidColorBrush(Colors.DarkOrange);
-            canvas.Children.Add(pl);*/
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void Create_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "WAV File (*.wav)|*.wav";
@@ -200,15 +293,7 @@ namespace AoEdit
             }
 
             // Génère l'en-tête du fichier WAV par une configuration fixe
-            wavfile header = new wavfile();
-            header.id = new char[] { 'R', 'I', 'F', 'F' };
-            header.wavefmt = new char[] { 'W', 'A', 'V', 'E', 'f', 'm', 't', ' '};
-            header.data = new char[] { 'd', 'a', 't', 'a'};
-            header.format = 16;
-            header.pcm = 1;
-            header.channels = 2;
-            header.frequency = 44100;
-            header.bitsPerSample = 16;
+            wavfile header = CreateHeader(1, 2, 44100, 16);
             header.bytesByCapture = (short) (header.channels * (header.bitsPerSample / 8));
             header.bytesPerSecond = header.frequency * header.bytesByCapture;
 
@@ -217,20 +302,30 @@ namespace AoEdit
             uint numSamples = (uint) (header.frequency * header.channels) * time;
             short[] buffer = new short[numSamples];
             int amplitude = short.MaxValue;
-            double freq = 17000.0f;
+            double freq = 440.0f;
 
             double t = (Math.PI * 2 * freq) / (header.frequency * header.channels);
-            Random rnd = new Random();
+            int samplesPerWaveLenght = Convert.ToInt32(header.frequency / (freq / header.channels));
 
-            for (uint i = 0; i < numSamples - 1; i++)
+            switch (form)
             {
-                for (int channel = 0; channel < header.channels; channel++)
-                {
-                    buffer[i + channel] = Convert.ToInt16(amplitude * Math.Sin(t * i));
-                    //buffer[i + channel] = Convert.ToInt16(amplitude * Math.Sign(Math.Sin(t * i)));
-                    //buffer[i + channel] = Convert.ToInt16(rnd.Next(-amplitude, amplitude));
-                }
+                case FormWAV.Sin:
+                    buffer = Sin(numSamples, header.channels, amplitude, t);
+                    break;
+                case FormWAV.Square:
+                    buffer = Square(numSamples, header.channels, amplitude, t);
+                    break;
+                case FormWAV.Sawtooth:
+                    buffer = Sawtooth(numSamples, header.channels, samplesPerWaveLenght, amplitude);
+                    break;
+                case FormWAV.Triangle:
+                    buffer = Triangle();
+                    break;
+                case FormWAV.WhiteNoise:
+                    buffer = WhiteNoise(numSamples, header.channels, amplitude);
+                    break;
             }
+
             header.bytesInData = buffer.Length * (header.bitsPerSample / 8);
             header.totalLenght = 4 + (8 + header.format) + (8 + header.bytesInData);
 
@@ -239,10 +334,130 @@ namespace AoEdit
             MessageBox.Show("Réussite de l'écriture");
         }
 
+        private short[] Sin(uint numSamples, short channels, int amplitude, double t)
+        {
+            short[] tmp = new short[numSamples];
+            for (uint i = 0; i < numSamples - 1; i++)
+            {
+                for (int channel = 0; channel < channels; channel++)
+                {
+                    tmp[i + channel] = Convert.ToInt16(amplitude * Math.Sin(t * i));
+                }
+            }
+            return tmp;
+        }
+
+        private short[] Square(uint numSamples, short channels, int amplitude, double t)
+        {
+            short[] tmp = new short[numSamples];
+            for (uint i = 0; i < numSamples - 1; i++)
+            {
+                for (int channel = 0; channel < channels; channel++)
+                {
+                    tmp[i] = Convert.ToInt16(amplitude * Math.Sign(Math.Sin(t * i)));
+                }
+            }
+            return tmp;
+        }
+
+        private short[] Sawtooth(uint numSamples, short channels, int samplesPerWaveLenght, int amplitude)
+        {
+            short[] tmp = new short[numSamples];
+            short ampStep = Convert.ToInt16((amplitude * 2) / samplesPerWaveLenght);
+            short tempSample;
+            int totalSamplesWritten = 0;
+
+            while(totalSamplesWritten < numSamples)
+            {
+                tempSample = (short)-amplitude;
+
+                for(uint i = 0; i < samplesPerWaveLenght && totalSamplesWritten < numSamples; i++)
+                {
+                    for(int channel = 0; channel < channels; channel++)
+                    {
+                        tempSample += ampStep;
+                        tmp[totalSamplesWritten] = tempSample;
+
+                        totalSamplesWritten++;
+                    }
+                }
+            }
+
+            return tmp;
+        }
+
+        private short[] Triangle()
+        {
+            return new short[1];
+        }
+
+        private short[] WhiteNoise(uint numSamples, short channels, int amplitude)
+        {
+            short[] tmp = new short[numSamples];
+            Random rnd = new Random();
+            for (uint i = 0; i < numSamples - 1; i++)
+            {
+                for (int channel = 0; channel < channels; channel++)
+                {
+                    tmp[i + channel] = Convert.ToInt16(rnd.Next(-amplitude, amplitude));
+                }
+            }
+            return tmp;
+        }
+
+        private wavfile CreateHeader(short formatAudio, short channels, int frequency, short bitspersample)
+        {
+            wavfile tmp = new wavfile();
+            tmp.id = new char[] { 'R', 'I', 'F', 'F' };
+            tmp.wavefmt = new char[] { 'W', 'A', 'V', 'E', 'f', 'm', 't', ' ' };
+            tmp.data = new char[] { 'd', 'a', 't', 'a' };
+            tmp.format = 16;
+            tmp.pcm = formatAudio;
+            tmp.channels = channels;
+            tmp.frequency = frequency;
+            tmp.bitsPerSample = bitspersample;
+            return tmp;
+        }
+
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            //Redessine le Signal
             if (wav != null)
                 DrawSignal(wav.Buffer);
+        }
+
+        private void Render_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            switch (int.Parse((string) menuItem.Tag))
+            {
+                case 1:
+                    render = RenderWAV.Line;
+                    menuItemBar.IsChecked = false;
+                    menuItemFill.IsChecked = false;
+                    menuItemLarger.IsChecked = false;
+                    break;
+                case 2:
+                    render = RenderWAV.Fill;
+                    menuItemBar.IsChecked = false;
+                    menuItemLarger.IsChecked = false;
+                    menuItemLine.IsChecked = false;
+                    break;
+                case 3:
+                    render = RenderWAV.Largers;
+                    menuItemBar.IsChecked = false;
+                    menuItemFill.IsChecked = false;
+                    menuItemLine.IsChecked = false;
+                    break;
+                case 4:
+                    render = RenderWAV.Bars;
+                    menuItemFill.IsChecked = false;
+                    menuItemLarger.IsChecked = false;
+                    menuItemLine.IsChecked = false;
+                    break;
+            }
+
+            DrawSignal(wav.Buffer);
         }
     }
 }

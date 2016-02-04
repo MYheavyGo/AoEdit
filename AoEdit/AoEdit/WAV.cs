@@ -54,6 +54,8 @@ namespace AoEdit
             StreamWAV = wavFile;
             Header = new wavfile();
             Log = ReadBuffer();
+            if (Passed)
+                output = Buffer.Select(b => (float)b).ToArray();
         }
 
         public string ReadBuffer()
