@@ -13,6 +13,7 @@ namespace AoEdit
 {
     public enum RenderWAV
     {
+        Null = -1,
         Line,
         Fill,
         Largers,
@@ -21,6 +22,7 @@ namespace AoEdit
 
     public enum FormWAV
     {
+        Null = -1,
         Sin,
         Square,
         Triangle,
@@ -57,7 +59,7 @@ namespace AoEdit
             posX = 1;
             blockWidth = 6;
             render = RenderWAV.Bars;
-            form = FormWAV.Sawtooth;
+            form = FormWAV.Sin;
         }
 
         private void Open_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -78,7 +80,7 @@ namespace AoEdit
                 Filename = dlg.FileName;
                 txtBlockLog.Text = "Fichier " + Filename + " selectionné";
                 wav = new WAV(Filename, wavFile.OpenFile(Filename));
-                if(wav.Passed == true)
+                if (wav.Passed == true)
                 {
                     if (wavs.Count == 0)
                     {
@@ -91,7 +93,7 @@ namespace AoEdit
                 {
                     if (wavs.Count > 0)
                     {
-                        wav = wavs.Last();  
+                        wav = wavs.Last();
                     }
                 }
                 updateInfos(wav.Header);
@@ -103,7 +105,7 @@ namespace AoEdit
         {
             foreach (WAV item in wavs)
             {
-                if(w.Name == item.Name)
+                if (w.Name == item.Name)
                 {
                     return item;
                 }
@@ -198,7 +200,7 @@ namespace AoEdit
             }
 
             if (pointsTop.Count < 1)
-            return;
+                return;
 
             Point firstPoint = pointsTop[0];
             foreach (Point p in pointsTop)
@@ -239,7 +241,7 @@ namespace AoEdit
             for (int i = 0; i < subsets.Length; i++)
             {
                 double sum = 0;
-                for(int k = 0; k < subsetLenght; k++)
+                for (int k = 0; k < subsetLenght; k++)
                 {
                     sum += Math.Abs(wav.output[s++]);
                 }
@@ -248,7 +250,7 @@ namespace AoEdit
             }
 
             float normal = 0;
-            foreach(float sample in subsets)
+            foreach (float sample in subsets)
             {
                 if (sample > normal)
                 {
@@ -261,7 +263,7 @@ namespace AoEdit
             for (int i = 0; i < subsets.Length; i++)
             {
                 subsets[i] *= normal;
-                subsets[i] = subsets[i] / maxValue * ((float) canvas.ActualHeight / 2);
+                subsets[i] = subsets[i] / maxValue * ((float)canvas.ActualHeight / 2);
             }
 
             switch (render)
@@ -281,27 +283,31 @@ namespace AoEdit
 
         private void Create_Click(object sender, RoutedEventArgs e)
         {
+            if (form == FormWAV.Null)
+                return;
+
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "WAV File (*.wav)|*.wav";
             if (sfd.ShowDialog() == true)
             {
                 wavFile = new WAVFile();
                 wavFile.Path = sfd.FileName;
-            } else
+            }
+            else
             {
                 return;
             }
 
             // Génère l'en-tête du fichier WAV par une configuration fixe
             wavfile header = CreateHeader(1, 2, 44100, 16);
-            header.bytesByCapture = (short) (header.channels * (header.bitsPerSample / 8));
+            header.bytesByCapture = (short)(header.channels * (header.bitsPerSample / 8));
             header.bytesPerSecond = header.frequency * header.bytesByCapture;
 
             //Remplie les données audio du fichier
             uint time = 1;
-            uint numSamples = (uint) (header.frequency * header.channels) * time;
+            uint numSamples = (uint)(header.frequency * header.channels) * time;
             short[] buffer = new short[numSamples];
-            int amplitude = short.MaxValue;
+            int amplitude = 32760;//short.MaxValue;
             double freq = 440.0f;
 
             double t = (Math.PI * 2 * freq) / (header.frequency * header.channels);
@@ -319,7 +325,7 @@ namespace AoEdit
                     buffer = Sawtooth(numSamples, header.channels, samplesPerWaveLenght, amplitude);
                     break;
                 case FormWAV.Triangle:
-                    buffer = Triangle();
+                    buffer = Triangle(numSamples, header.channels, samplesPerWaveLenght, amplitude);
                     break;
                 case FormWAV.WhiteNoise:
                     buffer = WhiteNoise(numSamples, header.channels, amplitude);
@@ -334,14 +340,17 @@ namespace AoEdit
             MessageBox.Show("Réussite de l'écriture");
         }
 
-        private short[] Sin(uint numSamples, short channels, int amplitude, double t)
+        private short[] Sin(uint numSamples, int channels, int amplitude, double t)
         {
             short[] tmp = new short[numSamples];
-            for (uint i = 0; i < numSamples - 1; i++)
+            short tempSample = 0;
+
+            for (int i = 0; i < numSamples; i += channels)
             {
+                tempSample = Convert.ToInt16(amplitude * Math.Sin(t * i));
                 for (int channel = 0; channel < channels; channel++)
                 {
-                    tmp[i + channel] = Convert.ToInt16(amplitude * Math.Sin(t * i));
+                    tmp[i + channel] = tempSample;
                 }
             }
             return tmp;
@@ -367,15 +376,15 @@ namespace AoEdit
             short tempSample;
             int totalSamplesWritten = 0;
 
-            while(totalSamplesWritten < numSamples)
+            while (totalSamplesWritten < numSamples)
             {
                 tempSample = (short)-amplitude;
 
-                for(uint i = 0; i < samplesPerWaveLenght && totalSamplesWritten < numSamples; i++)
+                for (uint i = 0; i < samplesPerWaveLenght && totalSamplesWritten < numSamples; i++)
                 {
-                    for(int channel = 0; channel < channels; channel++)
+                    tempSample += ampStep;
+                    for (int channel = 0; channel < channels; channel++)
                     {
-                        tempSample += ampStep;
                         tmp[totalSamplesWritten] = tempSample;
 
                         totalSamplesWritten++;
@@ -386,9 +395,28 @@ namespace AoEdit
             return tmp;
         }
 
-        private short[] Triangle()
+        private short[] Triangle(uint numSamples, short channels, int samplesPerWaveLenght, int amplitude)
         {
-            return new short[1];
+            short[] tmp = new short[numSamples];
+            short ampStep = Convert.ToInt16((amplitude * 2) / samplesPerWaveLenght);
+            short tempSample = (short)-amplitude;
+
+            for (uint i = 0; i < numSamples - 1; i++)
+            {
+                //Console.WriteLine(i + ";" + tempSample + ";" + amplitude);
+
+                for (int channel = 0; channel < channels; channel++)
+                {
+                    if (Math.Abs(tempSample) > amplitude)
+                    {
+                        ampStep = (short)-ampStep;
+                    }
+
+                    tempSample += ampStep;
+                    tmp[i + channel] = tempSample;
+                }
+            }
+            return tmp;
         }
 
         private short[] WhiteNoise(uint numSamples, short channels, int amplitude)
@@ -419,6 +447,31 @@ namespace AoEdit
             return tmp;
         }
 
+        private List<MenuItem> GetGroupItems(MenuItem currentItem)
+        {
+            var parentItem = currentItem.Parent as MenuItem;
+            if(!(parentItem.Items.Count > 0))
+            {
+                return null;
+            }
+
+            List<MenuItem> items = new List<MenuItem>();
+            foreach(var item in parentItem.Items)
+            {
+                MenuItem container = item as MenuItem;
+                if (container == null || container.Tag == null)
+                {
+                    continue;
+                }
+                if (container.Tag.Equals(currentItem.Tag))
+                {
+                    items.Add(container);
+                }
+            }
+
+            return items;
+        }
+
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             //Redessine le Signal
@@ -428,36 +481,67 @@ namespace AoEdit
 
         private void Render_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem menuItem = sender as MenuItem;
-            switch (int.Parse((string) menuItem.Tag))
+            var currentItem = e.OriginalSource as MenuItem;
+
+            if (currentItem.IsCheckable && currentItem.Tag != null)
             {
-                case 1:
-                    render = RenderWAV.Line;
-                    menuItemBar.IsChecked = false;
-                    menuItemFill.IsChecked = false;
-                    menuItemLarger.IsChecked = false;
-                    break;
-                case 2:
-                    render = RenderWAV.Fill;
-                    menuItemBar.IsChecked = false;
-                    menuItemLarger.IsChecked = false;
-                    menuItemLine.IsChecked = false;
-                    break;
-                case 3:
-                    render = RenderWAV.Largers;
-                    menuItemBar.IsChecked = false;
-                    menuItemFill.IsChecked = false;
-                    menuItemLine.IsChecked = false;
-                    break;
-                case 4:
-                    render = RenderWAV.Bars;
-                    menuItemFill.IsChecked = false;
-                    menuItemLarger.IsChecked = false;
-                    menuItemLine.IsChecked = false;
-                    break;
+                var items = GetGroupItems(currentItem);
+
+                if (items != null)
+                {
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        if (items[i] != currentItem)
+                        {
+                            items[i].IsChecked = false;
+                        } else
+                        {
+                            switch (i)
+                            {
+                                case 0:
+                                    render = RenderWAV.Bars;
+                                    break;
+                                case 1:
+                                    render = RenderWAV.Fill;
+                                    break;
+                                case 2:
+                                    render = RenderWAV.Largers;
+                                    break;
+                                case 3:
+                                    render = RenderWAV.Line;
+                                    break;
+                                case -1:
+                                    render = RenderWAV.Null;
+                                    break;
+                            }
+                        }
+                    }
+                }
             }
 
-            DrawSignal(wav.Buffer);
+            if (wav != null)
+                DrawSignal(wav.Buffer);
+        }
+
+        private void Form_Click(object sender, RoutedEventArgs e)
+        {
+            var currentItem = e.OriginalSource as MenuItem;
+
+            if (currentItem.IsCheckable && currentItem.Tag != null)
+            {
+                var items = GetGroupItems(currentItem);
+
+                if (items != null)
+                {
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        if (items[i] != currentItem)
+                        {
+                            items[i].IsChecked = false;
+                        }
+                    }
+                }
+            }
         }
     }
 }

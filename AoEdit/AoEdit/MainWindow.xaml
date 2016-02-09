@@ -6,19 +6,23 @@
         xmlns:local="clr-namespace:AoEdit"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800" SizeChanged="Window_SizeChanged" MinWidth="425">
+
+    <!-- Commands Bindings -->
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Open" CanExecute="Open_CanExecute" Executed="Open_Executed"></CommandBinding>
     </Window.CommandBindings>
+    
+    <!-- MainWindow -->
     <DockPanel LastChildFill="True">
         <Menu x:Name="menu" IsMainMenu="True" DockPanel.Dock="Top">
             <MenuItem Header="_File">
                 <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="ApplicationCommands.Open"></MenuItem>
             </MenuItem>
-            <MenuItem Header="Waveform">
-                <MenuItem x:Name="menuItemLine" Header="_Straight line" IsCheckable="True" Tag="1" Click="Render_Click"></MenuItem>
-                <MenuItem x:Name="menuItemFill" Header="_Fill" IsCheckable="True" Tag="2" Click="Render_Click"></MenuItem>
-                <MenuItem x:Name="menuItemLarger" Header="_Largers" IsCheckable="True" Tag="3" Click="Render_Click"></MenuItem>
-                <MenuItem x:Name="menuItemBar" Header="_Bars" IsCheckable="True" Tag="4" IsChecked="True" Click="Render_Click"></MenuItem>
+            <MenuItem Header="Waveform" Click="Render_Click">
+                <MenuItem Header="_Bars" IsCheckable="True" Tag="1" StaysOpenOnClick="True"></MenuItem>
+                <MenuItem Header="_Fill" IsCheckable="True" Tag="1" StaysOpenOnClick="True"></MenuItem>
+                <MenuItem Header="_Largers" IsCheckable="True" Tag="1" StaysOpenOnClick="True"></MenuItem>
+                <MenuItem Header="_Straight Line" IsCheckable="True" Tag="1" IsChecked="True" StaysOpenOnClick="True"></MenuItem>
             </MenuItem>
             <MenuItem Header="Templates">
                 <MenuItem Header="Create a WAV - ultrasound" Click="Create_Click">
@@ -31,11 +35,12 @@
                     </MenuItem.ToolTip>
                 </MenuItem>
                 <Separator></Separator>
-                <MenuItem Header="Form">
-                    <MenuItem x:Name="menuItemSin" Header="_Sine" IsCheckable="True"></MenuItem>
-                    <MenuItem x:Name="menuItemSquare" Header="_Square" IsCheckable="True"></MenuItem>
-                    <MenuItem x:Name="menuItemTriangle" Header="_Triangle" IsCheckable="True"></MenuItem>
-                    <MenuItem x:Name="menuItemSawtooth" Header="_Sawtooth" IsCheckable="True"></MenuItem>
+                <MenuItem Header="Form" Click="Form_Click">
+                    <MenuItem x:Name="menuItemSin" Header="_Sine" IsCheckable="True" Tag="2"></MenuItem>
+                    <MenuItem x:Name="menuItemSquare" Header="_Square" IsCheckable="True" Tag="2"></MenuItem>
+                    <MenuItem x:Name="menuItemTriangle" Header="_Triangle" IsCheckable="True" Tag="2"></MenuItem>
+                    <MenuItem x:Name="menuItemSawtooth" Header="_Sawtooth" IsCheckable="True" Tag="2"></MenuItem>
+                    <MenuItem x:Name="menuItemNoise" Header="_Noise" IsCheckable="True" Tag="2"></MenuItem>
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="_Help">
@@ -67,6 +72,7 @@
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
 
+                <!-- Label Infos -->
                 <Label x:Name="lblFileName" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="13.333" FontWeight="Bold"/>
                 <Label Content="Général" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold"></Label>
                 <Label Content="Audio" Grid.Row="0"  Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold"></Label>
