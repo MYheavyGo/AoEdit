@@ -55,7 +55,13 @@ namespace AoEdit
             Header = new wavfile();
             Log = ReadBuffer();
             if (Passed)
-                output = Buffer.Select(b => (float)b).ToArray();
+            {
+                output = new float[Buffer.Length];
+                for (int i = 0; i < Buffer.Length - 1; i++)
+                {
+                    output[i] = BitConverter.ToInt16(Buffer, i);
+                }
+            }
         }
 
         public string ReadBuffer()

@@ -19,24 +19,24 @@
                 <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="ApplicationCommands.Open"></MenuItem>
             </MenuItem>
             <MenuItem Header="Waveform" Click="Render_Click">
-                <MenuItem Header="_Bars" IsCheckable="True" Tag="1" StaysOpenOnClick="True"></MenuItem>
-                <MenuItem Header="_Fill" IsCheckable="True" Tag="1" StaysOpenOnClick="True"></MenuItem>
-                <MenuItem Header="_Largers" IsCheckable="True" Tag="1" StaysOpenOnClick="True"></MenuItem>
-                <MenuItem Header="_Straight Line" IsCheckable="True" Tag="1" IsChecked="True" StaysOpenOnClick="True"></MenuItem>
+                <MenuItem Header="_Bars" IsCheckable="True" Tag="1" IsChecked="True"></MenuItem>
+                <MenuItem Header="_Fill" IsCheckable="True" Tag="1"></MenuItem>
+                <MenuItem Header="_Largers" IsCheckable="True" Tag="1"></MenuItem>
+                <MenuItem Header="_Straight Line" IsCheckable="True" Tag="1"></MenuItem>
             </MenuItem>
             <MenuItem Header="Templates">
                 <MenuItem Header="Create a WAV - ultrasound" Click="Create_Click">
                     <MenuItem.ToolTip>
                         <ToolTip>
                             <StackPanel>
-                                <TextBlock>Crée un fichier WAV avec le signal du SINUS</TextBlock>
+                                <TextBlock>Crée un fichier WAV avec le signal choisi</TextBlock>
                             </StackPanel>
                         </ToolTip>
                     </MenuItem.ToolTip>
                 </MenuItem>
                 <Separator></Separator>
                 <MenuItem Header="Form" Click="Form_Click">
-                    <MenuItem x:Name="menuItemSin" Header="_Sine" IsCheckable="True" Tag="2"></MenuItem>
+                    <MenuItem x:Name="menuItemSin" Header="_Sine" IsCheckable="True" Tag="2" IsChecked="True"></MenuItem>
                     <MenuItem x:Name="menuItemSquare" Header="_Square" IsCheckable="True" Tag="2"></MenuItem>
                     <MenuItem x:Name="menuItemTriangle" Header="_Triangle" IsCheckable="True" Tag="2"></MenuItem>
                     <MenuItem x:Name="menuItemSawtooth" Header="_Sawtooth" IsCheckable="True" Tag="2"></MenuItem>
@@ -80,14 +80,18 @@
                 <Label Content="Taille du fichier" Grid.Row="2" Grid.Column="0"></Label>
                 <Label Content="Format" Grid.Row="1" Grid.Column="2"></Label>
                 <Label Content="Canaux" Grid.Row="2" Grid.Column="2"></Label>
-                <Label Content="Débit (bitrate)" Grid.Row="3" Grid.Column="2"></Label>
-                <Label Content="Taux d'échantillonnage" Grid.Row="4" Grid.Column="2"></Label>
+                <Label Content="Débit (bitrate)" Grid.Row="3" Grid.Column="2" VerticalAlignment="Center"></Label>
+                <Label Content="Taux d'échantillonnage" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center"></Label>
                 <Label x:Name="lblFormat" Content="" Grid.Row="1" Grid.Column="1"></Label>
                 <Label x:Name="lblSize" Content="" Grid.Row="2" Grid.Column="1"></Label>
                 <Label x:Name="lblAudioFormat" Content="" Grid.Row="1" Grid.Column="3"></Label>
                 <Label x:Name="lblChannels" Content="" Grid.Row="2" Grid.Column="3"></Label>
                 <Label x:Name="lblBitrate" Content="" Grid.Row="3" Grid.Column="3"></Label>
                 <Label x:Name="lblSamplingRate" Content="" Grid.Row="4" Grid.Column="3"></Label>
+                
+                <!-- Button for the Spectogram -->
+                <Button x:Name="btnGenerateSpectrogram" Content="Générer le spectre (2D)" Tag="1" Grid.ColumnSpan="2" Grid.Row="3" Margin="30, 10" Click="GenerateSpectrogram_Click"></Button>
+                <Button x:Name="btnGenerateSpectrogram3D" Content="Générer le spectre (3D)" Tag="2" Grid.ColumnSpan="2" Grid.Row="4" Margin="30, 10" Click="GenerateSpectrogram_Click"></Button>
             </Grid>
             <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                 <Canvas x:Name="canvas"></Canvas>

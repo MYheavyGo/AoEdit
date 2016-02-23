@@ -34,5 +34,10 @@ namespace AoEdit.Utils
 
             return string.Format("{0:n1} {1}", adjustedSize, SizeSuffixes[mag]);
         }
+
+        static public bool isPowerOfTwo(ulong x)
+        {
+            return (x != 0) && ((x & (x - 1)) == 0);
+        }
     }
 }
