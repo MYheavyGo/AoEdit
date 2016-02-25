@@ -41,12 +41,14 @@ namespace AoEdit
     {
         //Constantes
         Color renderColor = Colors.DarkOrange;
+        Color lineTime = Colors.Red;
 
         WAVFile wavFile;
         List<WAV> wavs;
         WAV wav;
         string Filename { get; set; }
         Polyline pl;
+        Line timeLine;
         int posX;
         int blockWidth;
         RenderWAV render;
@@ -59,6 +61,7 @@ namespace AoEdit
             wavFile = new WAVFile();
             wavs = new List<WAV>();
             pl = new Polyline();
+            timeLine = new Line();
 
             posX = 1;
             blockWidth = 6;
@@ -100,6 +103,11 @@ namespace AoEdit
                         wav = wavs.Last();
                     }
                 }
+                progressBarVolume.Value = wav.Player.Volume;
+
+                wav.Player.TimerFile.Tick += TimerFile_Tick;
+                wav.Player.Element.MediaEnded += Element_MediaEnded;
+
                 updateInfos(wav.Header);
             }
         }
@@ -190,7 +198,7 @@ namespace AoEdit
             }
         }
 
-        //Dessine ule ligne
+        //Dessine une ligne
         private void DrawStraightLine(float[] subsets)
         {
             List<Point> pointsTop = new List<Point>();
@@ -594,6 +602,70 @@ namespace AoEdit
                     }
                 }
             }
+        }
+
+        private void Play_Click(object sender, RoutedEventArgs e)
+        {
+            if (wav != null)
+            {
+                if (wav.Player.Element.NaturalDuration.HasTimeSpan && wav.Player.Element.NaturalDuration.TimeSpan.Seconds == wav.Player.Element.Position.Seconds)
+                {
+                    wav.Player.Element.Stop();
+                }
+                wav.Player.Element.Play();
+                wav.Player.TimerFile.Start();
+            }
+        }
+
+        private void Pause_Click(object sender, RoutedEventArgs e)
+        {
+            if (wav != null)
+            {
+                wav.Player.Element.Pause();
+            }
+        }
+
+        private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (wav != null)
+            {
+                wav.Player.Volume += (e.Delta > 0) ? 0.1 : -0.1;
+                progressBarVolume.Value = wav.Player.Volume;
+            }
+        }
+
+        private void TimerFile_Tick(object sender, EventArgs e)
+        {
+            var timePlay = wav.Player.Element.Position.Seconds * 1000 + wav.Player.Element.Position.Milliseconds;
+            double pixelToMove = 0;
+
+            if (timePlay == 0)
+            {
+                return;
+            }
+
+            if (wav.Player.Element.NaturalDuration.HasTimeSpan)
+            {
+                pixelToMove = canvas.ActualWidth / wav.Player.Element.NaturalDuration.TimeSpan.TotalMilliseconds;
+            }
+
+            canvas.Children.Remove(timeLine);
+
+            timeLine = new Line();
+            timeLine.X1 = pixelToMove * timePlay;
+            timeLine.X2 = pixelToMove * timePlay;
+            timeLine.Y1 = 0;
+            timeLine.Y2 = canvas.ActualHeight;
+            timeLine.Stroke = new SolidColorBrush(lineTime);
+            timeLine.StrokeThickness = 1.2f;
+
+            canvas.Children.Add(timeLine);
+        }
+
+        private void Element_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            canvas.Children.Remove(timeLine);
+            wav.Player.TimerFile.Stop();
         }
     }
 }

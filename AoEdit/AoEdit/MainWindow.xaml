@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AoEdit"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800" SizeChanged="Window_SizeChanged" MinWidth="425">
+        Title="MainWindow" Height="600" Width="800" SizeChanged="Window_SizeChanged" MinWidth="425" MouseWheel="Window_MouseWheel">
 
     <!-- Commands Bindings -->
     <Window.CommandBindings>
@@ -48,10 +48,39 @@
             </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom" Height="30">
-            <StatusBarItem>
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem Grid.Column="0">
                 <TextBlock x:Name="txtBlockLog"/>
             </StatusBarItem>
+            <StatusBarItem Grid.Column="1">
+                <ProgressBar x:Name="progressBarVolume" MinWidth="200" Maximum="1" Height="20" Value="{Binding Path=Element.Player.Volume}"></ProgressBar>
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="2" HorizontalAlignment="Center">
+                <Button x:Name="Play" Background="#95a5a6" Click="Play_Click">
+                    <Image Source="Ressources/play.png"/>
+                </Button>
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="3" HorizontalAlignment="Center">
+                <Button x:Name="Pause" Background="#95a5a6" Click="Pause_Click">
+                    <Image Source="Ressources/pause.png"/>
+                </Button>
+            </StatusBarItem>
         </StatusBar>
+
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -86,9 +115,9 @@
                 <Label x:Name="lblSize" Content="" Grid.Row="2" Grid.Column="1"></Label>
                 <Label x:Name="lblAudioFormat" Content="" Grid.Row="1" Grid.Column="3"></Label>
                 <Label x:Name="lblChannels" Content="" Grid.Row="2" Grid.Column="3"></Label>
-                <Label x:Name="lblBitrate" Content="" Grid.Row="3" Grid.Column="3"></Label>
-                <Label x:Name="lblSamplingRate" Content="" Grid.Row="4" Grid.Column="3"></Label>
-                
+                <Label x:Name="lblBitrate" Content="" Grid.Row="3" Grid.Column="3" VerticalAlignment="Center"></Label>
+                <Label x:Name="lblSamplingRate" Content="" Grid.Row="4" Grid.Column="3" VerticalAlignment="Center"></Label>
+
                 <!-- Button for the Spectogram -->
                 <Button x:Name="btnGenerateSpectrogram" Content="Générer le spectre (2D)" Tag="1" Grid.ColumnSpan="2" Grid.Row="3" Margin="30, 10" Click="GenerateSpectrogram_Click"></Button>
                 <Button x:Name="btnGenerateSpectrogram3D" Content="Générer le spectre (3D)" Tag="2" Grid.ColumnSpan="2" Grid.Row="4" Margin="30, 10" Click="GenerateSpectrogram_Click"></Button>

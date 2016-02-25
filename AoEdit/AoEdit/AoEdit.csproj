@@ -66,10 +66,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Audio\Spectrogram.cs" />
-    <Compile Include="GUI\Board.cs" />
-    <Compile Include="GUI\Cube.cs" />
-    <Compile Include="GUI\Volume.cs" />
-    <Compile Include="GUI\WindowsRender.cs" />
+    <Compile Include="Audio\WAVPlay.cs" />
+    <Compile Include="Render3D\Board.cs" />
+    <Compile Include="Render3D\Cube.cs" />
+    <Compile Include="Render3D\Volume.cs" />
+    <Compile Include="Render3D\WindowsRender.cs" />
     <Compile Include="Utils\Constants.cs" />
     <Compile Include="Audio\WAV.cs" />
     <Page Include="MainWindow.xaml">
@@ -114,6 +115,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Ressources\pause.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Ressources\play.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

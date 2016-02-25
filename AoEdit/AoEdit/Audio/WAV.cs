@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AoEdit.Audio;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AoEdit
 {
@@ -44,6 +43,8 @@ namespace AoEdit
 
         public bool Passed { get; set; }
 
+        public WAVPlay Player { get; set; }
+
         public WAV()
         {
         }
@@ -62,6 +63,8 @@ namespace AoEdit
                     output[i] = BitConverter.ToInt16(Buffer, i);
                 }
             }
+
+            Player = new WAVPlay(name);
         }
 
         public string ReadBuffer()

@@ -20,8 +20,8 @@ namespace AoEdit.Audio
                 complexInput[i] = tmp;
             }
 
-            //Fourier.BluesteinForward(complexInput, FourierOptions.NoScaling);
-            Fourier.Forward(complexInput);
+            Fourier.BluesteinForward(complexInput, FourierOptions.NoScaling);
+            //Fourier.Forward(complexInput);
 
             //Do something
 
