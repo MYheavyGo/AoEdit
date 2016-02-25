@@ -2,8 +2,6 @@
 using AoEdit.GUI;
 using AoEdit.Utils;
 using Microsoft.Win32;
-using OpenTK;
-using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -509,8 +507,7 @@ namespace AoEdit
                     MessageBox.Show("Pas de fichier chargés");
                     return;
                 }*/
-
-                new WindowsRender(new GameWindow(800, 600, new GraphicsMode(32, 24, 0, 8)));
+                //new WindowsRender(ne(800, 600, new GraphicsMode(32, 24, 0, 8)));
             }
         }
 
