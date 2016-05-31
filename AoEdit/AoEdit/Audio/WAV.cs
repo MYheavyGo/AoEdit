@@ -6,32 +6,14 @@ using System.Text;
 
 namespace AoEdit
 {
-    struct wavfile
-    {
-        public char[] id;
-        public int totalLenght;
-        public char[] wavefmt;
-        public int format;
-        public short pcm;
-        public short channels;
-        public int frequency;
-        public int bytesPerSecond;
-        public short bytesByCapture;
-        public short bitsPerSample;
-        public char[] data;
-        public int bytesInData;
-    }
 
     class WAV
     {
-        public wavfile Header;
-
+        public DataHeader Header;
         public Stream StreamWAV { get; set; }
-
         public string Name { get; set; }
-
         public byte[] Buffer { get; set; }
-        public float[] output { get; set; }
+        public float[] Samples { get; set; }
 
         private int sizeHeader = 44;
         public int SizeHeader
@@ -45,22 +27,19 @@ namespace AoEdit
 
         public WAVPlay Player { get; set; }
 
-        public WAV()
-        {
-        }
-
         public WAV(string name, Stream wavFile)
-        {
+        { 
+            //Constructeur
             Name = name;
             StreamWAV = wavFile;
-            Header = new wavfile();
+            Header = new DataHeader();
             Log = ReadBuffer();
             if (Passed)
             {
-                output = new float[Buffer.Length];
+                Samples = new float[Buffer.Length];
                 for (int i = 0; i < Buffer.Length - 1; i++)
                 {
-                    output[i] = BitConverter.ToInt16(Buffer, i);
+                    Samples[i] = BitConverter.ToInt16(Buffer, i);
                 }
             }
 
@@ -69,52 +48,53 @@ namespace AoEdit
 
         public string ReadBuffer()
         {
-            using (BinaryReader reader = new BinaryReader(StreamWAV, Encoding.UTF8))
+            using (BinaryReader reader = new BinaryReader(StreamWAV))
             {
-                Header.id = reader.ReadChars(4);
-                if (!Header.id.SequenceEqual("RIFF"))
+                Header.FileTypeID = reader.ReadChars(4);
+                if (!Header.FileTypeID.SequenceEqual("RIFF"))
                 {
                     Passed = false;
                     return "Format non conforme du fichier";
                 }
 
-                Header.totalLenght = reader.ReadInt32();
+                Header.FileLenght = reader.ReadInt32();
 
-                Header.wavefmt = reader.ReadChars(8);
-                if (!Header.wavefmt.SequenceEqual("WAVEfmt "))
+                Header.MediaTypedID = reader.ReadChars(8);
+                if (!Header.MediaTypedID.SequenceEqual("WAVEfmt "))
                 {
                     Passed = false;
                     return "Format non conforme du fichier";
                 }
 
-                Header.format = reader.ReadInt32();
-                Header.pcm = Math.Abs(reader.ReadInt16());
-                Header.channels = reader.ReadInt16();
-                Header.frequency = reader.ReadInt32();
-                Header.bytesPerSecond = reader.ReadInt32();
-                Header.bytesByCapture = reader.ReadInt16();
-                Header.bitsPerSample = reader.ReadInt16();
+                Header.ChunkSizeFormat = reader.ReadInt32();
+                Header.FormatTag = Math.Abs(reader.ReadInt16());
+                Header.Channels = reader.ReadInt16();
+                Header.Frequency = reader.ReadInt32();
+                Header.AverageBytesPerSec = reader.ReadInt32();
+                Header.BlockAlign = reader.ReadInt16();
+                Header.BitsPerSample = reader.ReadInt16();
 
-                if (Header.format > 16)
+                if (Header.ChunkSizeFormat > 16)
                 {
                     int ExtraSize = reader.ReadInt16();
                     var ExtraData = reader.ReadBytes(ExtraSize);
                 }
 
-                Header.data = reader.ReadChars(4);
-                if (!Header.data.SequenceEqual("data"))
+                Header.ChunkIDData = reader.ReadChars(4);
+                if (!Header.ChunkIDData.SequenceEqual("data"))
                 {
                     Passed = false;
                     return "Format non conforme du fichier";
                 }
 
-                Header.bytesInData = reader.ReadInt32();
+                Header.ChunkSizeData = reader.ReadInt32();
 
-                Buffer = reader.ReadBytes(Header.bytesInData);
+                Buffer = reader.ReadBytes(Header.ChunkSizeData);
 
                 reader.Close();
 
                 Passed = true;
+                StreamWAV.Close();
                 return "Analyse du fichier réussi";
             }
         }

@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoEdit", "AoEdit\AoEdit.csproj", "{325301C1-1916-4480-83AB-F47F1598DF54}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoEdit", "AoEdit\AoEdit.csproj", "{791A63F4-9473-47A7-82D2-DCB2861BC2D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FolderRecurse", "..\FolderRecurse\FolderRecurse\FolderRecurse.csproj", "{F42A2B46-B2A9-4C6E-B5AB-A9ED660E12E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnDATAGRID", "..\LearnDATAGRID\LearnDATAGRID\LearnDATAGRID.csproj", "{B088D487-8D42-4448-AE6B-E1FB4A584F8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{325301C1-1916-4480-83AB-F47F1598DF54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{325301C1-1916-4480-83AB-F47F1598DF54}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{325301C1-1916-4480-83AB-F47F1598DF54}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{325301C1-1916-4480-83AB-F47F1598DF54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{791A63F4-9473-47A7-82D2-DCB2861BC2D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{791A63F4-9473-47A7-82D2-DCB2861BC2D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{791A63F4-9473-47A7-82D2-DCB2861BC2D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{791A63F4-9473-47A7-82D2-DCB2861BC2D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F42A2B46-B2A9-4C6E-B5AB-A9ED660E12E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F42A2B46-B2A9-4C6E-B5AB-A9ED660E12E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F42A2B46-B2A9-4C6E-B5AB-A9ED660E12E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F42A2B46-B2A9-4C6E-B5AB-A9ED660E12E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B088D487-8D42-4448-AE6B-E1FB4A584F8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B088D487-8D42-4448-AE6B-E1FB4A584F8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B088D487-8D42-4448-AE6B-E1FB4A584F8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B088D487-8D42-4448-AE6B-E1FB4A584F8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

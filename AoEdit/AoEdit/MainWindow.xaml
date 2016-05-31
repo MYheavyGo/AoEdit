@@ -5,49 +5,49 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AoEdit"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800" SizeChanged="Window_SizeChanged" MinWidth="425" MouseWheel="Window_MouseWheel">
+        Title="MainWindow" Height="600" Width="800" SizeChanged="Window_SizeChanged" MinWidth="425" MouseWheel="Window_MouseWheel" Background="#FF979797">
 
     <!-- Commands Bindings -->
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Open" CanExecute="Open_CanExecute" Executed="Open_Executed"></CommandBinding>
     </Window.CommandBindings>
-    
+
     <!-- MainWindow -->
-    <DockPanel LastChildFill="True">
-        <Menu x:Name="menu" IsMainMenu="True" DockPanel.Dock="Top">
-            <MenuItem Header="_File">
-                <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="ApplicationCommands.Open"></MenuItem>
+    <DockPanel LastChildFill="True" Background="#FF404040">
+        <Menu x:Name="menu" IsMainMenu="True" DockPanel.Dock="Top" Background="#FF555555" Foreground="#FF979797">
+            <MenuItem Header="_Fichier">
+                <MenuItem Header="_Ouvrir" InputGestureText="Ctrl+O" Command="ApplicationCommands.Open" Foreground="#FF555555"/>
             </MenuItem>
-            <MenuItem Header="Waveform" Click="Render_Click">
-                <MenuItem Header="_Bars" IsCheckable="True" Tag="1" IsChecked="True"></MenuItem>
-                <MenuItem Header="_Fill" IsCheckable="True" Tag="1"></MenuItem>
-                <MenuItem Header="_Largers" IsCheckable="True" Tag="1"></MenuItem>
-                <MenuItem Header="_Straight Line" IsCheckable="True" Tag="1"></MenuItem>
+            <MenuItem Header="Forme du WAV" Click="Render_Click">
+                <MenuItem Header="_Barres" IsCheckable="True" Tag="0" IsChecked="True" Foreground="#FF555555"></MenuItem>
+                <MenuItem Header="_Remplies" IsCheckable="True" Tag="1" Foreground="#FF555555"></MenuItem>
+                <MenuItem Header="_Larges" IsCheckable="True" Tag="2" Foreground="#FF555555"></MenuItem>
+                <MenuItem Header="_Droites" IsCheckable="True" Tag="3" Foreground="#FF555555"></MenuItem>
             </MenuItem>
-            <MenuItem Header="Templates">
-                <MenuItem Header="Create a WAV - ultrasound" Click="Create_Click">
+            <MenuItem Header="Modèles">
+                <MenuItem Header="Créer un WAV - ultrason" Click="Create_Click" Foreground="#FF555555">
                     <MenuItem.ToolTip>
                         <ToolTip>
                             <StackPanel>
-                                <TextBlock>Crée un fichier WAV avec le signal choisi</TextBlock>
+                                <TextBlock>Crée un fichier WAV avec une forme de signal choisi</TextBlock>
                             </StackPanel>
                         </ToolTip>
                     </MenuItem.ToolTip>
                 </MenuItem>
                 <Separator></Separator>
-                <MenuItem Header="Form" Click="Form_Click">
-                    <MenuItem x:Name="menuItemSin" Header="_Sine" IsCheckable="True" Tag="2" IsChecked="True"></MenuItem>
-                    <MenuItem x:Name="menuItemSquare" Header="_Square" IsCheckable="True" Tag="2"></MenuItem>
+                <MenuItem Header="Forme" Click="Form_Click" Foreground="#FF555555">
+                    <MenuItem x:Name="menuItemSin" Header="_Sinus" IsCheckable="True" Tag="0" IsChecked="True"></MenuItem>
+                    <MenuItem x:Name="menuItemSquare" Header="_Carré" IsCheckable="True" Tag="1"></MenuItem>
                     <MenuItem x:Name="menuItemTriangle" Header="_Triangle" IsCheckable="True" Tag="2"></MenuItem>
-                    <MenuItem x:Name="menuItemSawtooth" Header="_Sawtooth" IsCheckable="True" Tag="2"></MenuItem>
-                    <MenuItem x:Name="menuItemNoise" Header="_Noise" IsCheckable="True" Tag="2"></MenuItem>
+                    <MenuItem x:Name="menuItemSawtooth" Header="_Dents de scie" IsCheckable="True" Tag="3"></MenuItem>
+                    <MenuItem x:Name="menuItemNoise" Header="_Bruit" IsCheckable="True" Tag="4"></MenuItem>
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="_Help">
-                <MenuItem Header="_About"></MenuItem>
+            <MenuItem Header="_Aide" Visibility="Hidden">
+                <MenuItem x:Name="MenuItemAbout" Header="_About" Foreground="#FF555555" Click="About_Click"></MenuItem>
             </MenuItem>
         </Menu>
-        <StatusBar DockPanel.Dock="Bottom" Height="30">
+        <StatusBar DockPanel.Dock="Bottom" Height="30" Background="#FF555555">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid>
@@ -64,7 +64,7 @@
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
             <StatusBarItem Grid.Column="0">
-                <TextBlock x:Name="txtBlockLog"/>
+                <TextBlock x:Name="txtBlockLog" Foreground="#FF979797"/>
             </StatusBarItem>
             <StatusBarItem Grid.Column="1">
                 <ProgressBar x:Name="progressBarVolume" MinWidth="200" Maximum="1" Height="20" Value="{Binding Path=Element.Player.Volume}"></ProgressBar>
@@ -102,29 +102,27 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Label Infos -->
-                <Label x:Name="lblFileName" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="13.333" FontWeight="Bold"/>
-                <Label Content="Général" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold"></Label>
-                <Label Content="Audio" Grid.Row="0"  Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold"></Label>
-                <Label Content="Format" Grid.Row="1" Grid.Column="0"></Label>
-                <Label Content="Taille du fichier" Grid.Row="2" Grid.Column="0"></Label>
-                <Label Content="Format" Grid.Row="1" Grid.Column="2"></Label>
-                <Label Content="Canaux" Grid.Row="2" Grid.Column="2"></Label>
-                <Label Content="Débit (bitrate)" Grid.Row="3" Grid.Column="2" VerticalAlignment="Center"></Label>
-                <Label Content="Taux d'échantillonnage" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center"></Label>
-                <Label x:Name="lblFormat" Content="" Grid.Row="1" Grid.Column="1"></Label>
-                <Label x:Name="lblSize" Content="" Grid.Row="2" Grid.Column="1"></Label>
-                <Label x:Name="lblAudioFormat" Content="" Grid.Row="1" Grid.Column="3"></Label>
-                <Label x:Name="lblChannels" Content="" Grid.Row="2" Grid.Column="3"></Label>
-                <Label x:Name="lblBitrate" Content="" Grid.Row="3" Grid.Column="3" VerticalAlignment="Center"></Label>
-                <Label x:Name="lblSamplingRate" Content="" Grid.Row="4" Grid.Column="3" VerticalAlignment="Center"></Label>
+                <Label x:Name="lblFileName" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="#FF979797"/>
+                <Label Content="Général" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="17.333" FontWeight="Bold" Foreground="#FF818181"/>
+                <Label Content="Audio" Grid.Row="0"  Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="17.333" FontWeight="Bold" Foreground="#FF818181"/>
+                <Label Content="Format" Grid.Row="1" Grid.Column="0" Foreground="#FF979797"/>
+                <Label Content="Taille du fichier" Grid.Row="2" Grid.Column="0" Foreground="#FF979797"/>
+                <Label Content="Format" Grid.Row="1" Grid.Column="2" Foreground="#FF979797"/>
+                <Label Content="Canaux" Grid.Row="2" Grid.Column="2" Foreground="#FF979797"/>
+                <Label Content="Débit (bitrate)" Grid.Row="3" Grid.Column="2" VerticalAlignment="Center" Foreground="#FF979797"/>
+                <Label Content="Taux d'échantillonnage" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" Foreground="#FF979797"/>
+                <Label x:Name="lblFormat" Content="" Grid.Row="1" Grid.Column="1" Foreground="#FF979797"/>
+                <Label x:Name="lblSize" Content="" Grid.Row="2" Grid.Column="1" Foreground="#FF979797"/>
+                <Label x:Name="lblAudioFormat" Content="" Grid.Row="1" Grid.Column="3" Foreground="#FF979797"/>
+                <Label x:Name="lblChannels" Content="" Grid.Row="2" Grid.Column="3" Foreground="#FF979797"/>
+                <Label x:Name="lblBitrate" Content="" Grid.Row="3" Grid.Column="3" VerticalAlignment="Center" Foreground="#FF979797"/>
+                <Label x:Name="lblSamplingRate" Content="" Grid.Row="4" Grid.Column="3" VerticalAlignment="Center" Foreground="#FF979797"/>
 
                 <!-- Button for the Spectogram -->
                 <Button x:Name="btnGenerateSpectrogram" Content="Générer le spectre (2D)" Tag="1" Grid.ColumnSpan="2" Grid.Row="3" Margin="30, 10" Click="GenerateSpectrogram_Click"></Button>
                 <Button x:Name="btnGenerateSpectrogram3D" Content="Générer le spectre (3D)" Tag="2" Grid.ColumnSpan="2" Grid.Row="4" Margin="30, 10" Click="GenerateSpectrogram_Click"></Button>
             </Grid>
-            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                <Canvas x:Name="canvas"></Canvas>
-            </ScrollViewer>
+            <Canvas x:Name="canvas" Grid.Row="1" Grid.Column="0"></Canvas>
         </Grid>
     </DockPanel>
 </Window>

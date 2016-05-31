@@ -20,13 +20,13 @@ namespace AoEdit.Utils
             WAVE_FORMAT_DTS = 0x0008,
             WAVE_FORMAT_DRM = 0x0009,
             WAVE_FORMAT_EXTENSIBLE = 0xFFFE,
-            WAVE_FORMAT_DEVELOPMENT= 0xFFFF
+            WAVE_FORMAT_DEVELOPMENT = 0xFFFF
         }
 
         static readonly string[] SizeSuffixes = { "bytes", "Kb", "Mb", "Gb", "Tb", "Pb" };
-        public static string SizeSuffix(Int64 value)
+        public static string SizeSuffix(long value)
         {
-            if(value< 0) { return "-" + SizeSuffixes[-value]; }
+            if (value < 0) { return "-" + SizeSuffixes[-value]; }
             if (value == 0) { return "0.0 bytes"; }
 
             int mag = (int)Math.Log(value, 1024);

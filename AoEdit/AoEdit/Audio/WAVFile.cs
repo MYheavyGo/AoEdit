@@ -1,46 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AoEdit.Audio;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AoEdit
 {
     class WAVFile
     {
-        public string Path { get; set; }
-        public string FileName { get; set; }
-
-        public Stream OpenFile(string path)
+        //Ouvre le fichier selectionné et crée un objet WAV
+        public static WAV OpenFile(string path)
         {
             //File.WriteAllBytes(path + ".hex", File.ReadAllBytes(path));
-            return new FileStream(path, FileMode.Open, FileAccess.Read);
+
+            FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+            return new WAV(path, fs);
         }
 
-        public void WriteFile(short[] bytes, wavfile header)
+        //Ecris dans un fichier depuis un WAV
+        public static void WriteFile(string path, DataHeader Header, byte[] Buffer)
         {
-            FileStream fileStream = new FileStream(Path + FileName, FileMode.Create);
+            FileStream fileStream = new FileStream(path, FileMode.Create);
 
             BinaryWriter writer = new BinaryWriter(fileStream);
 
-            writer.Write(header.id.ToArray());
-            writer.Write(header.totalLenght);
-            writer.Write(header.wavefmt.ToArray());
-            writer.Write(header.format);
-            writer.Write(header.pcm);
-            writer.Write(header.channels);
-            writer.Write(header.frequency);
-            writer.Write(header.bytesPerSecond);
-            writer.Write(header.bytesByCapture);
-            writer.Write(header.bitsPerSample);
-            writer.Write(header.data.ToArray());
-            writer.Write(header.bytesInData);
-            foreach(short dataPoint in bytes)
+            //Ecrire le chunk de base
+            writer.Write(Header.FileTypeID);
+            writer.Write(Header.FileLenght);
+            writer.Write(Header.MediaTypedID);
+
+            //Ecrire le chunck du format
+            writer.Write(Header.ChunkIDFormat);
+            writer.Write(Header.ChunkSizeFormat);
+            writer.Write(Header.FormatTag);
+            writer.Write(Header.Channels);
+            writer.Write(Header.Frequency);
+            writer.Write(Header.AverageBytesPerSec);
+            writer.Write(Header.BlockAlign);
+            writer.Write(Header.BitsPerSample);
+
+            //Ecrire le chunck de données
+            writer.Write(Header.ChunkIDData);
+            writer.Write(Header.ChunkSizeData);
+            foreach(byte dataPoint in Buffer)
             {
                 writer.Write(dataPoint);
             }
 
+            //Fermeture des streams
             writer.Close();
             fileStream.Close();
         }

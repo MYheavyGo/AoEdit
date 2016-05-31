@@ -21,7 +21,7 @@ namespace AoEdit.Audio
         }
 
         private double volume;
-        private bool isDraggingSlider = false;
+        //private bool isDraggingSlider = false;
 
         public WAVPlay(string path)
         {
